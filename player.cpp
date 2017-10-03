@@ -63,7 +63,6 @@ GameState Player::play(const GameState &pState, const Deadline &pDue)
 int Player::alphabeta(const GameState &pState, int depth, int alpha, int beta, const uint8_t player)
 {
     //std::cerr << "Processing " << pState.toMessage() << " " << depth << std::endl;
-
     auto search = stringMap.find(pState.toMessage());
     if (search != stringMap.end())
     {
@@ -111,6 +110,31 @@ int Player::alphabeta(const GameState &pState, int depth, int alpha, int beta, c
 }
 
 int Player::naive_utility(uint8_t player, const GameState &pState)
+{
+    uint8_t opponent = player ^ (CELL_X | CELL_O);
+    uint playerSum = 0;
+    uint value;
+    uint occupying;
+    for (int i = 0; i < 4; ++i)
+    {
+        for (int j = 0; j < 4; ++j)
+        {
+            value = (((i + j) % 3) != 0) && (i != j) ? 2 : 3;
+            occupying = pState.at(i, j);
+            if (occupying == player)
+            {
+                playerSum += value;
+            }
+            if (occupying == opponent)
+            {
+                playerSum -= value;
+            }
+        }
+    }
+    return playerSum;
+}
+
+int Player::utility(uint8_t player, const GameState &pState)
 {
     uint8_t opponent = player ^ (CELL_X | CELL_O);
     uint playerSum = 0;
