@@ -14,6 +14,10 @@ using std::numeric_limits;
 namespace TICTACTOE
 {
 
+Player::Player(){
+    //cerr << "Constructor " << endl;
+};
+
 GameState Player::play(const GameState &pState, const Deadline &pDue)
 {
     //cerr << "Processing " << pState.toMessage() << endl;
