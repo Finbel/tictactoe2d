@@ -184,7 +184,8 @@ int Player::utility(uint8_t player, const GameState &pState)
             opponentWinPaths += 1;
         }
     }
-    return (max_player - max_opponent) + (playerWinPaths - opponentWinPaths);
+    int total = (max_player - max_opponent) + (playerWinPaths - opponentWinPaths);
+    return total;
 }
 
 /*namespace TICTACTOE*/ }
