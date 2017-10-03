@@ -4,14 +4,21 @@
 #include <limits>
 #include <algorithm>
 
+using std::vector;
+using std::endl;
+using std::cerr;
+using std::max;
+using std::min;
+using std::numeric_limits;
+
 namespace TICTACTOE
 {
 
 GameState Player::play(const GameState &pState, const Deadline &pDue)
 {
-    //std::cerr << "Processing " << pState.toMessage() << std::endl;
+    //cerr << "Processing " << pState.toMessage() << endl;
 
-    std::vector<GameState> lNextStates;
+    vector<GameState> lNextStates;
     pState.findPossibleMoves(lNextStates);
 
     if (lNextStates.size() == 0)
@@ -21,20 +28,20 @@ GameState Player::play(const GameState &pState, const Deadline &pDue)
      * Here you should write your clever algorithms to get the best next move, ie the best
      * next state. This skeleton returns a random move instead.
      */
-    int alpha = std::numeric_limits<int>::min();
-    int beta = std::numeric_limits<int>::max();
+    int alpha = numeric_limits<int>::min();
+    int beta = numeric_limits<int>::max();
     int v = alpha;
     int player = pState.getNextPlayer() ^ (CELL_X | CELL_O);
     GameState pick;
     for (GameState state : lNextStates)
     {
-        v = std::max(v, alphabeta(state, 3, alpha, beta, CELL_X));
+        v = max(v, alphabeta(state, 3, alpha, beta, CELL_X));
 
         if (alpha < v)
         {
             pick = state;
         }
-        alpha = std::max(alpha, v);
+        alpha = max(alpha, v);
     }
 
     if (player == CELL_X)
@@ -53,7 +60,7 @@ int Player::alphabeta(const GameState &pState, int depth, int alpha, int beta, c
     //std::cerr << "Processing " << pState.toMessage() << " " << depth << std::endl;
 
     int v;
-    std::vector<GameState> lNextStates;
+    vector<GameState> lNextStates;
     pState.findPossibleMoves(lNextStates);
 
     if (depth == 0 || lNextStates.size() == 0)
@@ -62,11 +69,11 @@ int Player::alphabeta(const GameState &pState, int depth, int alpha, int beta, c
     }
     else if (player == CELL_X)
     {
-        v = std::numeric_limits<int>::min();
+        v = numeric_limits<int>::min();
         for (GameState state : lNextStates)
         {
-            v = std::max(v, alphabeta(state, depth - 1, alpha, beta, player ^ (CELL_X | CELL_O)));
-            alpha = std::max(alpha, v);
+            v = max(v, alphabeta(state, depth - 1, alpha, beta, player ^ (CELL_X | CELL_O)));
+            alpha = max(alpha, v);
             if (beta <= alpha)
             {
                 break;
@@ -75,11 +82,11 @@ int Player::alphabeta(const GameState &pState, int depth, int alpha, int beta, c
     }
     else
     {
-        v = std::numeric_limits<int>::max();
+        v = numeric_limits<int>::max();
         for (GameState state : lNextStates)
         {
-            v = std::min(v, alphabeta(state, depth - 1, alpha, beta, player ^ (CELL_X | CELL_O)));
-            beta = std::min(beta, v);
+            v = min(v, alphabeta(state, depth - 1, alpha, beta, player ^ (CELL_X | CELL_O)));
+            beta = min(beta, v);
             if (beta <= alpha)
             {
                 break;
