@@ -20,9 +20,6 @@ Player::Player(){
 
 GameState Player::play(const GameState &pState, const Deadline &pDue)
 {
-    // testing stringSet
-    cerr << stringMap.size() << endl;
-    stringMap[pState.toMessage()] = 0;
     //cerr << "Processing " << pState.toMessage() << endl;
 
     vector<GameState>
@@ -43,7 +40,7 @@ GameState Player::play(const GameState &pState, const Deadline &pDue)
     GameState pick;
     for (GameState state : lNextStates)
     {
-        v = max(v, alphabeta(state, 3, alpha, beta, CELL_X));
+        v = max(v, alphabeta(state, 4, alpha, beta, CELL_X));
 
         if (alpha < v)
         {
@@ -66,6 +63,12 @@ GameState Player::play(const GameState &pState, const Deadline &pDue)
 int Player::alphabeta(const GameState &pState, int depth, int alpha, int beta, const uint8_t player)
 {
     //std::cerr << "Processing " << pState.toMessage() << " " << depth << std::endl;
+
+    auto search = stringMap.find(pState.toMessage());
+    if (search != stringMap.end())
+    {
+        return search->second;
+    }
 
     int v;
     vector<GameState> lNextStates;
@@ -101,6 +104,9 @@ int Player::alphabeta(const GameState &pState, int depth, int alpha, int beta, c
             }
         }
     }
+
+    stringMap[pState.toMessage()] = v;
+
     return v;
 }
 
