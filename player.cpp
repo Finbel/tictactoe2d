@@ -40,7 +40,7 @@ GameState Player::play(const GameState &pState, const Deadline &pDue)
     GameState pick;
     for (GameState state : lNextStates)
     {
-        v = max(v, alphabeta(state, 4, alpha, beta, CELL_X));
+        v = max(v, alphabeta(state, 3, alpha, beta, CELL_X));
 
         if (alpha < v)
         {
@@ -75,7 +75,7 @@ int Player::alphabeta(const GameState &pState, int depth, int alpha, int beta, c
 
     if (depth == 0 || lNextStates.size() == 0)
     {
-        v = naive_utility(player, pState);
+        v = utility(player, pState);
     }
     else if (player == CELL_X)
     {
@@ -137,26 +137,54 @@ int Player::naive_utility(uint8_t player, const GameState &pState)
 int Player::utility(uint8_t player, const GameState &pState)
 {
     uint8_t opponent = player ^ (CELL_X | CELL_O);
-    uint playerSum = 0;
-    uint value;
-    uint occupying;
-    for (int i = 0; i < 4; ++i)
+    // rows, columns and diagonals where player can win
+    uint playerWinPaths = 0;
+    // rows, columns and diagonals where opponent can win
+    uint opponentWinPaths = 0;
+    // the most marks the player has on a possible win path
+    uint max_player = 0;
+    // the most marks the opponent has on a possible win path
+    uint max_opponent = 0;
+
+    // used to count marks on a possible win path
+    uint count_opponent;
+    uint count_player;
+
+    for (vector<int> win : winVector)
     {
-        for (int j = 0; j < 4; ++j)
+        for (int windex : win)
         {
-            value = (((i + j) % 3) != 0) && (i != j) ? 2 : 3;
-            occupying = pState.at(i, j);
-            if (occupying == player)
+            // assume that no one has placed a mark on this path
+            count_player = 0;
+            count_opponent = 0;
+            if (pState.at(windex) == player)
             {
-                playerSum += value;
+                count_player += 1;
             }
-            if (occupying == opponent)
+            else if (pState.at(windex) == opponent)
             {
-                playerSum -= value;
+                count_opponent += 1;
             }
         }
+        // check if the path belongs to any player
+        if (count_opponent == 0 && count_player != 0)
+        {
+            if (count_player > max_player)
+            {
+                max_player = count_player;
+            }
+            playerWinPaths += 1;
+        }
+        else if (count_player == 0 && count_opponent != 0)
+        {
+            if (count_opponent > max_opponent)
+            {
+                max_opponent = count_opponent;
+            }
+            opponentWinPaths += 1;
+        }
     }
-    return playerSum;
+    return (max_player - max_opponent) + (playerWinPaths - opponentWinPaths);
 }
 
 /*namespace TICTACTOE*/ }
