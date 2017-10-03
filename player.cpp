@@ -20,9 +20,13 @@ Player::Player(){
 
 GameState Player::play(const GameState &pState, const Deadline &pDue)
 {
+    // testing stringSet
+    cerr << stringMap.size() << endl;
+    stringMap[pState.toMessage()] = 0;
     //cerr << "Processing " << pState.toMessage() << endl;
 
-    vector<GameState> lNextStates;
+    vector<GameState>
+        lNextStates;
     pState.findPossibleMoves(lNextStates);
 
     if (lNextStates.size() == 0)

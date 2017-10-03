@@ -6,6 +6,8 @@
 #include "move.hpp"
 #include "gamestate.hpp"
 #include <vector>
+#include <unordered_map>
+#include <string>
 
 namespace TICTACTOE
 {
@@ -13,6 +15,7 @@ namespace TICTACTOE
 class Player
 {
 public:
+  std::unordered_map<std::string, int> stringMap;
   Player();
   ///perform a move
   ///\param pState the current state of the board
