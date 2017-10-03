@@ -40,7 +40,7 @@ GameState Player::play(const GameState &pState, const Deadline &pDue)
     GameState pick;
     for (GameState state : lNextStates)
     {
-        v = max(v, alphabeta(state, 2, alpha, beta, CELL_X));
+        v = max(v, alphabeta(state, 3, alpha, beta, CELL_X));
 
         if (alpha < v)
         {
@@ -169,6 +169,7 @@ int Player::utility(uint8_t player, const GameState &pState)
         // check if the path belongs to any player
         if (count_opponent == 0 && count_player != 0)
         {
+            // save the max amount of marks a player has on a winning vector
             if (count_player > max_player)
             {
                 max_player = count_player;
