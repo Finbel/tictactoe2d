@@ -23,7 +23,7 @@ public:
   ///\return the next state the board is in after our move
   GameState play(const GameState &pState, const Deadline &pDue);
   int alphabeta(const GameState &pState, int depth, int alpha, int beta, const uint8_t player);
-  int utility(uint8_t player, const GameState &pState);
+  int naive_utility(uint8_t player, const GameState &pState);
 };
 
 /*namespace TICTACTOE*/ }

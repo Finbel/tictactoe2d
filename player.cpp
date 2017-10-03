@@ -76,7 +76,7 @@ int Player::alphabeta(const GameState &pState, int depth, int alpha, int beta, c
 
     if (depth == 0 || lNextStates.size() == 0)
     {
-        v = utility(player, pState);
+        v = naive_utility(player, pState);
     }
     else if (player == CELL_X)
     {
@@ -110,7 +110,7 @@ int Player::alphabeta(const GameState &pState, int depth, int alpha, int beta, c
     return v;
 }
 
-int Player::utility(uint8_t player, const GameState &pState)
+int Player::naive_utility(uint8_t player, const GameState &pState)
 {
     uint8_t opponent = player ^ (CELL_X | CELL_O);
     uint playerSum = 0;
