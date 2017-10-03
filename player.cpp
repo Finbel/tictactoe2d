@@ -40,7 +40,7 @@ GameState Player::play(const GameState &pState, const Deadline &pDue)
     GameState pick;
     for (GameState state : lNextStates)
     {
-        v = max(v, alphabeta(state, 3, alpha, beta, CELL_X));
+        v = max(v, alphabeta(state, 2, alpha, beta, CELL_X));
 
         if (alpha < v)
         {
@@ -105,7 +105,6 @@ int Player::alphabeta(const GameState &pState, int depth, int alpha, int beta, c
     }
 
     stringMap[pState.toMessage()] = v;
-
     return v;
 }
 
@@ -138,32 +137,33 @@ int Player::utility(uint8_t player, const GameState &pState)
 {
     uint8_t opponent = player ^ (CELL_X | CELL_O);
     // rows, columns and diagonals where player can win
-    uint playerWinPaths = 0;
+    int playerWinPaths = 0;
     // rows, columns and diagonals where opponent can win
-    uint opponentWinPaths = 0;
+    int opponentWinPaths = 0;
     // the most marks the player has on a possible win path
-    uint max_player = 0;
+    int max_player = 0;
     // the most marks the opponent has on a possible win path
-    uint max_opponent = 0;
+    int max_opponent = 0;
 
     // used to count marks on a possible win path
-    uint count_opponent;
-    uint count_player;
+    int count_opponent;
+    int count_player;
 
+    cerr << pState.toString(player);
     for (vector<int> win : winVector)
     {
+        count_player = 0;
+        count_opponent = 0;
         for (int windex : win)
         {
             // assume that no one has placed a mark on this path
-            count_player = 0;
-            count_opponent = 0;
-            if (pState.at(windex) == player)
+            if (pState.at(windex) & player)
             {
-                count_player += 1;
+                count_player++;
             }
-            else if (pState.at(windex) == opponent)
+            else if (pState.at(windex) & opponent)
             {
-                count_opponent += 1;
+                count_opponent++;
             }
         }
         // check if the path belongs to any player
@@ -173,7 +173,7 @@ int Player::utility(uint8_t player, const GameState &pState)
             {
                 max_player = count_player;
             }
-            playerWinPaths += 1;
+            playerWinPaths++;
         }
         else if (count_player == 0 && count_opponent != 0)
         {
@@ -181,7 +181,7 @@ int Player::utility(uint8_t player, const GameState &pState)
             {
                 max_opponent = count_opponent;
             }
-            opponentWinPaths += 1;
+            opponentWinPaths++;
         }
     }
     int total = (max_player - max_opponent) + (playerWinPaths - opponentWinPaths);
