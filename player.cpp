@@ -34,27 +34,38 @@ GameState Player::play(const GameState &pState, const Deadline &pDue)
      * next state. This skeleton returns a random move instead.
      */
 
-    int alpha = numeric_limits<int>::min();
-    int beta = numeric_limits<int>::max();
+    int bestValue = -2147483648;
+    int stateValue;
+    int bestStateIdx = -1;
+    int alpha = -2147483648;
+    int beta = 2147483647;
 
-    int v = alpha;      // will hold our best value
-    int stateValue = 0; // will hold the temporary value
+    int searchDepth = 5;
 
-    int bestStateIndex = -1;
-
-    for (uint i = 0; i < nextStates.size(); i++)
+    for (int i = 0; i < nextStates.size(); i++)
     {
-        auto state = nextStates[i];
-        stateValue = alphabeta(state, 3, alpha, beta, CELL_X);
-        if (stateValue > v)
+
+        stateValue = alphabeta(nextStates[i], searchDepth, alpha, beta, 2);
+        if (stateValue > bestValue)
         {
-            v = stateValue;
-            bestStateIndex = i;
+            bestValue = stateValue;
+            bestStateIdx = i;
+            if (pState.getNextPlayer() == CELL_X)
+            {
+                alpha = max(alpha, bestValue);
+            }
         }
-        alpha = max(alpha, v);
+        //System.err.println("||||||||best state is at "+i);
     }
 
-    return nextStates[bestStateIndex];
+    if (pState.getNextPlayer() == CELL_X)
+    {
+        return nextStates[bestStateIdx];
+    }
+    else
+    {
+        return nextStates[rand() % nextStates.size()];
+    }
 }
 
 int Player::alphabeta(const GameState &pState, int depth, int alpha, int beta, const uint8_t player)
@@ -112,17 +123,30 @@ int Player::alphabeta(const GameState &pState, int depth, int alpha, int beta, c
 
 int Player::utility(const GameState &state)
 {
-
-    int player = 2;
-
+    int player = CELL_X;
+    int notplayer = CELL_O;
     //sum of the number of marks in each row, column, diagonals that do not
     //contain any of the opponents marks.
+    // if (state.getNextPlayer() == CELL_O)
+    // {
+    //     //current player is X
+    //     player = CELL_X;
+    //     notplayer = CELL_O;
+    // }
+    // else
+    // {
+    //     // current player is O
+    //     player = CELL_O;
+    //     notplayer = CELL_X;
+    // }
+    //Lists to keep score for X
+    vector<int> differentSumsX(10, 0);
+    vector<bool> nonNulledLineX(10, false);
 
-    int playerCellValue = 3 - player;
-    int OtherPlayerCellValue = player;
-    //this is 1 for player with X and 2 for player with O
-    vector<int> differentSums(10, 0);
-    vector<bool> nonNulledLine(10, false);
+    //Lists to keep score for O
+    vector<int> differentSumsO(10, 0);
+    vector<bool> nonNulledLineO(10, false);
+
     //the first 4 are for the colunms, the following for the rows and the last for the diagonals
     for (int c = 0; c < 4; c++)
     {
@@ -131,48 +155,88 @@ int Player::utility(const GameState &state)
             int valueOfCell = state.at(r, c);
 
             //this one is 1 for X and 2 for O
-            if (valueOfCell == playerCellValue)
+            if (valueOfCell == player)
             {
-                //this is if the value is the one that represents the players
-                differentSums[c] = (differentSums[c] + 1);
+                //this is the cell has a value that is not empty and also not player Xs
+                nonNulledLineO[c] = true;
+                nonNulledLineO[4 + r] = true;
+                if (r == c)
+                {
+                    nonNulledLineO[8] = true;
+                }
+                if (3 - r == c)
+                {
+                    nonNulledLineO[9] = true;
+                }
 
-                differentSums[4 + r] = (differentSums[4 + r] + 1);
+                //this is if the value is the one that represents the players
+                differentSumsX[c] = (differentSumsX[c] + 1);
+
+                differentSumsX[4 + r] = (differentSumsX[4 + r] + 1);
                 if (r == c)
                 {
                     //this is for one of the diagonals
-                    differentSums[8] = (differentSums[8] + 1);
+                    differentSumsX[8] = (differentSumsX[8] + 1);
                 }
                 if (3 - r == c)
                 {
                     //this is for the other of the diagonals
-                    differentSums[9] = (differentSums[9] + 1);
+                    differentSumsX[9] = (differentSumsX[9] + 1);
                 }
             }
-            else if (valueOfCell == OtherPlayerCellValue)
+            else if (valueOfCell == notplayer)
             {
-                //this is the cell has a value that is not empty and also not the players
-                nonNulledLine[c] = true;
-                nonNulledLine[4 + r] = true;
+                //this is if the value is the one that represents the players
+                differentSumsO[c] = (differentSumsO[c] + 1);
+
+                differentSumsO[4 + r] = (differentSumsO[4 + r] + 1);
                 if (r == c)
                 {
-                    nonNulledLine[8] = true;
+                    //this is for one of the diagonals
+                    differentSumsO[8] = (differentSumsO[8] + 1);
                 }
                 if (3 - r == c)
                 {
-                    nonNulledLine[9] = true;
+                    //this is for the other of the diagonals
+                    differentSumsO[9] = (differentSumsO[9] + 1);
+                }
+
+                //this is the cell has a value that is not empty and also not the players
+                nonNulledLineX[c] = true;
+                nonNulledLineX[4 + r] = true;
+                if (r == c)
+                {
+                    nonNulledLineX[8] = true;
+                }
+                if (3 - r == c)
+                {
+                    nonNulledLineX[9] = true;
                 }
             }
         }
     }
-    int returnSum = 0;
+    int returnSumX = 0;
     for (int i = 0; i < 10; i++)
     {
-        if (!nonNulledLine[i])
+        if (!nonNulledLineX[i])
         {
-            returnSum += differentSums[i];
+            returnSumX += differentSumsX[i];
         }
     }
-    return returnSum;
+
+    int returnSumO = 0;
+    for (int i = 0; i < 10; i++)
+    {
+        if (!nonNulledLineO[i])
+        {
+            returnSumO += differentSumsO[i];
+        }
+    }
+
+    // O = opponent
+    // X = player
+
+    return (returnSumX - returnSumO);
 }
 
 /*namespace TICTACTOE*/ }
