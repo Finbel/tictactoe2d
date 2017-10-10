@@ -76,7 +76,7 @@ int Player::alphabeta(const GameState &pState, int depth, int alpha, int beta, c
     // If max depth or no more moves
     if (depth == 0 || nextStates.size() == 0)
     {
-        v = utility3(pState);
+        v = utility(pState);
     } // if player = A
     else if (player == CELL_X)
     {
@@ -110,87 +110,7 @@ int Player::alphabeta(const GameState &pState, int depth, int alpha, int beta, c
     return v;
 }
 
-int Player::naive_utility(uint8_t player, const GameState &pState)
-{
-    uint8_t opponent = player ^ (CELL_X | CELL_O);
-    uint playerSum = 0;
-    uint value;
-    uint occupying;
-    for (int i = 0; i < 4; ++i)
-    {
-        for (int j = 0; j < 4; ++j)
-        {
-            value = (((i + j) % 3) != 0) && (i != j) ? 2 : 3;
-            occupying = pState.at(i, j);
-            if (occupying == player)
-            {
-                playerSum += value;
-            }
-            if (occupying == opponent)
-            {
-                playerSum -= value;
-            }
-        }
-    }
-    return playerSum;
-}
-
-int Player::utility(uint8_t player, const GameState &pState)
-{
-    uint8_t opponent = player ^ (CELL_X | CELL_O);
-    // rows, columns and diagonals where player can win
-    int playerWinPaths = 0;
-    // rows, columns and diagonals where opponent can win
-    int opponentWinPaths = 0;
-    // the most marks the player has on a possible win path
-    int max_player = 0;
-    // the most marks the opponent has on a possible win path
-    int max_opponent = 0;
-
-    // used to count marks on a possible win path
-    int count_opponent;
-    int count_player;
-
-    for (vector<int> win : winVector)
-    {
-        count_player = 0;
-        count_opponent = 0;
-        for (int windex : win)
-        {
-            // assume that no one has placed a mark on this path
-            if (pState.at(windex) & player)
-            {
-                count_player++;
-            }
-            else if (pState.at(windex) & opponent)
-            {
-                count_opponent++;
-            }
-        }
-        // check if the path belongs to any player
-        if (count_opponent == 0 && count_player != 0)
-        {
-            // save the max amount of marks a player has on a winning vector
-            if (count_player > max_player)
-            {
-                max_player = count_player;
-            }
-            playerWinPaths++;
-        }
-        else if (count_player == 0 && count_opponent != 0)
-        {
-            if (count_opponent > max_opponent)
-            {
-                max_opponent = count_opponent;
-            }
-            opponentWinPaths++;
-        }
-    }
-    int total = (max_player - max_opponent) + (playerWinPaths - opponentWinPaths);
-    return total;
-}
-
-int Player::utility3(const GameState &state)
+int Player::utility(const GameState &state)
 {
 
     int player = 2;
