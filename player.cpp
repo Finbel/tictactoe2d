@@ -34,11 +34,11 @@ GameState Player::play(const GameState &pState, const Deadline &pDue)
      * next state. This skeleton returns a random move instead.
      */
 
-    int bestValue = -2147483648;
+	int bestValue = numeric_limits<int>::min();
     int stateValue;
     int bestStateIdx = -1;
-    int alpha = -2147483648;
-    int beta = 2147483647;
+	int alpha = numeric_limits<int>::min();
+	int beta = numeric_limits<int>::max();
 
     int searchDepth = 5;
 
@@ -233,8 +233,7 @@ int Player::utility(const GameState &state)
         }
     }
 
-    // O = opponent
-    // X = player
+
 
     return (returnSumX - returnSumO);
 }
